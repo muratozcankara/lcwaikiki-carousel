@@ -8,11 +8,17 @@
     
     // Load products either from localStorage or by fetching
     const loadProducts = async () => {
-      const storedProducts = localStorage.getItem('carouselProducts');
+      const cachedProducts = localStorage.getItem('carouselProducts');
+      const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
   
-      if (storedProducts) {
-        // Already in localStorage
-        self.products = JSON.parse(storedProducts);
+      if (cachedProducts) {
+        const products = JSON.parse(cachedProducts);
+        // Update products with favorite status
+        const updatedProducts = products.map(product => ({
+          ...product,
+          isFavorite: favorites.includes(product.id)
+        }));
+        self.products = updatedProducts;
         console.log('Loaded products from localStorage:', self.products);
       } else {
         // Fetch from gist URL
@@ -21,11 +27,16 @@
         try {
           const response = await fetch(url);
           const data = await response.json();
-          self.products = data;
+          // Update products with favorite status before saving
+          const updatedProducts = data.map(product => ({
+            ...product,
+            isFavorite: favorites.includes(product.id)
+          }));
+          self.products = updatedProducts;
           console.log('Fetched products from API:', self.products);
   
           // Save to localStorage
-          localStorage.setItem('carouselProducts', JSON.stringify(self.products));
+          localStorage.setItem('carouselProducts', JSON.stringify(data));
         } catch (error) {
           console.error('Error fetching products:', error);
           self.products = [];
@@ -104,6 +115,11 @@
         }
         .carousel-container {
           padding: 0 15px;
+          display: flex;
+          gap: 20px;
+          transition: transform 0.3s ease-out;
+          touch-action: pan-x;
+          -webkit-overflow-scrolling: touch;
         }
         .combine-products-title {
           font-size: 20px;
@@ -221,14 +237,25 @@
           cursor: not-allowed;
         }
         /* Responsive styles */
+        @media (max-width: 1200px) {
+          .carousel-wrapper {
+            max-width: 960px;
+          }
+        }
         @media (max-width: 992px) {
-          .custom-slide {
-            flex: 0 0 50%;
+          .carousel-wrapper {
+            max-width: 720px;
+          }
+        }
+        @media (max-width: 768px) {
+          .carousel-wrapper {
+            max-width: 540px;
           }
         }
         @media (max-width: 576px) {
-          .custom-slide {
-            flex: 0 0 100%;
+          .carousel-wrapper {
+            max-width: 100%;
+            padding: 0 15px;
           }
         }
       `;
@@ -249,8 +276,14 @@
         const windowWidth = $(window).width();
         if (windowWidth <= 576) {
           visibleSlides = 1;
-        } else if (windowWidth <= 992) {
+        } else if (windowWidth <= 768) {
           visibleSlides = 2;
+        } else if (windowWidth <= 992) {
+          visibleSlides = 3;
+        } else if (windowWidth <= 1200) {
+          visibleSlides = 4;
+        } else if (windowWidth <= 1444) {
+          visibleSlides = 5;
         } else {
           visibleSlides = 6;
         }
