@@ -40,7 +40,7 @@
     // Build HTML for the carousel
     const buildHTML = () => {
       const html = `
-        <div class="recommendation-carousel">
+        <div class="recommendation-carousel custom-recommendation-carousel">
           <div class="carousel-container">
             <p class="combine-products-title">You Might Also Like</p>
             <div class="carousel padded-carousel">
@@ -49,11 +49,11 @@
                   <path fill="none" stroke="#333" stroke-linecap="round" stroke-width="3px" d="M2106.842 2395.467l-10 10 10 10" transform="translate(-2094.721 -2393.346)"></path>
                 </svg>
               </button>
-              <div class="horizontalSlider___281Ls carousel__slider carousel__slider--horizontal" aria-live="polite" aria-label="slider" role="listbox">
+              <div class="horizontalSlider___281Ls carousel__slider carousel__slider--horizontal custom-slider" aria-live="polite" aria-label="slider" role="listbox">
                 <div class="carousel__slider-tray-wrapper carousel__slider-tray-wrap--horizontal">
                   <div class="sliderTray___-vHFQ sliderAnimation___300FY carousel__slider-tray carousel__slider-tray--horizontal custom-slider-tray" style="display: flex; align-items: stretch; width: ${self.products.length * 33.3333}%; transform: translateX(0px); flex-direction: row;">
                     ${self.products.map(product => `
-                      <div aria-selected="false" aria-label="slide" role="option" class="slide___3-Nqo slideHorizontal___1NzNV carousel__slide carousel__slide--hidden" style="width: 33.3333%; padding-bottom: unset; height: unset;">
+                      <div aria-selected="false" aria-label="slide" role="option" class="slide___3-Nqo slideHorizontal___1NzNV carousel__slide carousel__slide--hidden custom-slide" style="width: 33.3333%; padding-bottom: unset; height: unset;">
                         <div class="slideInner___2mfX9 carousel__inner-slide" style="position: unset;">
                           <div class="new-product-card">
                             <div class="new-product-card__image-wrapper">
@@ -99,7 +99,7 @@
     // Build CSS for the carousel
     const buildCSS = () => {
       const css = `
-        .recommendation-carousel {
+        .custom-recommendation-carousel {
           margin-top: 40px;
         }
         .carousel-container {
@@ -113,51 +113,66 @@
         .carousel.padded-carousel {
           position: relative;
         }
-        .horizontalSlider___281Ls {
+        .custom-slider {
           overflow: hidden;
           width: 100%;
         }
         .carousel__slider-tray-wrapper {
           overflow: hidden;
         }
-        .sliderTray___-vHFQ {
+        .custom-slider-tray {
           display: flex;
           transition: transform 0.3s ease;
+          flex-wrap: nowrap;
         }
-        .slide___3-Nqo {
+        .custom-slide {
           flex: 0 0 33.3333%;
           min-width: 0;
+          padding: 0;
+          box-sizing: border-box;
         }
         .new-product-card {
           background-color: #fff;
           border: 1px solid #eee;
           border-radius: 4px;
-          padding: 10px;
-          margin: 0 5px;
+          padding: 0;
+          margin: 0;
           height: 100%;
+          box-sizing: border-box;
         }
         .new-product-card__image-wrapper {
           position: relative;
         }
         .product-image {
-          max-width: 100%;
+          width: 100%;
           height: auto;
           display: block;
           margin: 0 auto;
         }
         .new-product-card-like-button {
           position: absolute;
-          top: 5px;
-          right: 5px;
+          top: 10px;
+          right: 10px;
           cursor: pointer;
+          background: white;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .new-product-card-like-button.favorite-active svg path,
         .new-product-card-like-button.new-product-card-like-button-fav svg path {
           fill: #0077cc;
           stroke: #0077cc;
         }
+        .new-product-card__information-box {
+          padding: 10px;
+        }
         .new-product-card__information-box__title {
-          margin-top: 10px;
+          margin-top: 0;
         }
         .product-name {
           font-size: 14px;
@@ -167,6 +182,7 @@
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
+          height: 40px;
         }
         .price__current-price {
           font-size: 16px;
@@ -179,7 +195,7 @@
           top: 50%;
           transform: translateY(-50%);
           border: none;
-          background-color: rgba(0,0,0,0.1);
+          background-color: rgba(255,255,255,0.8);
           color: #333;
           width: 30px;
           height: 30px;
@@ -189,6 +205,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .carousel-arrow-left {
           left: 5px;
@@ -199,14 +216,18 @@
         .rotate-180 {
           transform: translateY(-50%) rotate(180deg);
         }
+        .carousel-arrow:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
         /* Responsive styles */
         @media (max-width: 992px) {
-          .slide___3-Nqo {
+          .custom-slide {
             flex: 0 0 50%;
           }
         }
         @media (max-width: 576px) {
-          .slide___3-Nqo {
+          .custom-slide {
             flex: 0 0 100%;
           }
         }
@@ -220,6 +241,64 @@
     const setEvents = () => {
       // Initialize position variable
       let currentPosition = 0;
+      let slideWidth = 0;
+      let visibleSlides = 0;
+      
+      // Calculate visible slides based on screen width
+      const calculateVisibleSlides = () => {
+        const windowWidth = $(window).width();
+        if (windowWidth <= 576) {
+          visibleSlides = 1;
+        } else if (windowWidth <= 992) {
+          visibleSlides = 2;
+        } else {
+          visibleSlides = 6;
+        }
+        
+        // Calculate total width of the slider tray
+        const totalWidth = (self.products.length / visibleSlides) * 100;
+        $('.custom-slider-tray').css('width', totalWidth + '%');
+        
+        // Recalculate slide width
+        slideWidth = $('.custom-slider').width() / visibleSlides;
+        $('.custom-slide').css({
+          'width': (100 / self.products.length) + '%',
+          'flex-basis': (100 / self.products.length) + '%'
+        });
+        
+        // Reset position if needed
+        if (Math.abs(currentPosition) > $('.custom-slider-tray').width() - $('.custom-slider').width()) {
+          currentPosition = 0;
+          $('.custom-slider-tray').css('transform', `translateX(${currentPosition}px)`);
+        }
+        
+        // Update button states
+        updateButtonStates();
+      };
+      
+      // Update button states
+      const updateButtonStates = () => {
+        // Enable/disable prev button
+        if (currentPosition >= 0) {
+          $('.custom-prev-btn').prop('disabled', true);
+        } else {
+          $('.custom-prev-btn').prop('disabled', false);
+        }
+        
+        // Enable/disable next button
+        const maxScroll = $('.custom-slider-tray').width() - $('.custom-slider').width();
+        if (Math.abs(currentPosition) >= maxScroll) {
+          $('.custom-next-btn').prop('disabled', true);
+        } else {
+          $('.custom-next-btn').prop('disabled', false);
+        }
+      };
+      
+      // Calculate initial values
+      calculateVisibleSlides();
+      
+      // Recalculate on window resize
+      $(window).on('resize', calculateVisibleSlides);
       
       // Heart icon toggle
       $('.custom-like-btn').on('click', function(e) {
@@ -239,46 +318,49 @@
         localStorage.setItem('favoriteProducts', JSON.stringify(self.favoriteProducts));
       });
       
-      // Enable next button if we have more than 3 products
-      if (self.products.length > 3) {
-        $('.custom-next-btn').prop('disabled', false);
-      } else {
-        $('.custom-next-btn').prop('disabled', true);
-      }
-      
       // Next button
       $('.custom-next-btn').on('click', function() {
         console.log('clicked next button');
-        $('.custom-prev-btn').prop('disabled', false);
         
-        const itemWidth = $('.slide___3-Nqo').width();
-        currentPosition -= itemWidth * 3; // Move 3 items at once
+        // Calculate how many slides to move
+        const moveBy = slideWidth * visibleSlides;
+        currentPosition -= moveBy;
         
         // Prevent scrolling too far
-        const maxScroll = $('.custom-slider-tray').width() - $('.horizontalSlider___281Ls').width();
+        const maxScroll = $('.custom-slider-tray').width() - $('.custom-slider').width();
         if (Math.abs(currentPosition) > maxScroll) {
           currentPosition = -maxScroll;
-          $(this).prop('disabled', true);
         }
         
+        // Apply the transform
         $('.custom-slider-tray').css('transform', `translateX(${currentPosition}px)`);
+        
+        // Update button states
+        updateButtonStates();
       });
       
       // Prev button
       $('.custom-prev-btn').on('click', function() {
         console.log('clicked prev button');
-        $('.custom-next-btn').prop('disabled', false);
         
-        const itemWidth = $('.slide___3-Nqo').width();
-        currentPosition += itemWidth * 3; // Move 3 items at once
+        // Calculate how many slides to move
+        const moveBy = slideWidth * visibleSlides;
+        currentPosition += moveBy;
         
+        // Prevent scrolling too far
         if (currentPosition > 0) {
           currentPosition = 0;
-          $(this).prop('disabled', true);
         }
         
+        // Apply the transform
         $('.custom-slider-tray').css('transform', `translateX(${currentPosition}px)`);
+        
+        // Update button states
+        updateButtonStates();
       });
+      
+      // Initial button state
+      updateButtonStates();
     };
   
 
