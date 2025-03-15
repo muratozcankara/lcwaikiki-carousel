@@ -1,7 +1,7 @@
 (() => {
     const self = {};
   
-    // page should contains .product-detail element
+    // page should contains .product-detail element or do not start
     const hasProductDetail = () => {
       return document.querySelector('.product-detail') !== null;
     };
@@ -32,13 +32,25 @@
         }
       }
     };
+    
+    // Build HTML for the carousel
+    const buildHTML = () => {
+      const html = `
+        <div class="carousel-container">
+          <h1>You Might Also Like</h1>
+          <p>Product carousel will appear here soon...</p>
+        </div>
+      `;
+
+      $('.product-detail').append(html);
+    };
   
     // Entry point
     const init = async () => {
       if (hasProductDetail()) {
         console.log('Product detail page detected. Carousel code initialized.');
-        await loadProducts();  // wilload products
-
+        await loadProducts();  // Load products
+        buildHTML();  // Build and append HTML
       } else {
         console.log('Not a product detail page. Carousel not initialized.');
       }
