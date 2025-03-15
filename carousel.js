@@ -9,17 +9,17 @@
     // Load products either from localStorage or by fetching
     const loadProducts = async () => {
       const cachedProducts = localStorage.getItem('carouselProducts');
-      const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+      const favorites = JSON.parse(localStorage.getItem('favoriteProducts')) || {};
   
       if (cachedProducts) {
         const products = JSON.parse(cachedProducts);
-        // Update products with favorite status
+        // Update products with favorite stas
         const updatedProducts = products.map(product => ({
           ...product,
-          isFavorite: favorites.includes(product.id)
+          isFavorite: favorites[product.id] === true
         }));
         self.products = updatedProducts;
-        console.log('Loaded products from localStorage:', self.products);
+        console.log('Loaded products from localStorage:');
       } else {
         // Fetch from gist URL
         const url = 'https://gist.githubusercontent.com/sevindi/5765c5812bbc8238a38b3cf52f233651/raw/56261d81af8561bf0a7cf692fe572f9e1e91f372/products.json';
@@ -69,9 +69,9 @@
                           <div class="new-product-card">
                             <div class="new-product-card__image-wrapper">
                               <a href="${product.url}">
-                                <img class="product-image lazyloaded" alt="Product Image" src="${product.img}" data-src="${product.img}">
-                              </a>
-                              <div class="new-product-card-like-button custom-like-btn" optionid="${product.id}">
+                              <img class="product-image lazyloaded" alt="Product Image" src="${product.img}" data-src="${product.img}">
+                          </a>
+                          <div class="new-product-card-like-button custom-like-btn ${product.isFavorite ? 'new-product-card-like-button-fav' : ''}" optionid="${product.id}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20.576" height="19.483" viewBox="0 0 20.576 19.483">
                                   <path fill="none" stroke="#555" stroke-width="1.5px" d="M19.032 7.111c-.278-3.063-2.446-5.285-5.159-5.285a5.128 5.128 0 0 0-4.394 2.532 4.942 4.942 0 0 0-4.288-2.532C2.478 1.826.31 4.048.032 7.111a5.449 5.449 0 0 0 .162 2.008 8.614 8.614 0 0 0 2.639 4.4l6.642 6.031 6.755-6.027a8.615 8.615 0 0 0 2.639-4.4 5.461 5.461 0 0 0 .163-2.012z" transform="translate(.756 -1.076)"></path>
                                 </svg>
