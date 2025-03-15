@@ -45,12 +45,31 @@
       $('.product-detail').append(html);
     };
   
+    // Build CSS for the carousel
+    const buildCSS = () => {
+      const css = `
+        .carousel-container {
+          margin-top: 40px;
+          padding: 0 15px;
+        }
+        .carousel-container h2 {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 15px;
+        }
+        /* More styles wil be added later */
+      `;
+
+      $('<style>').addClass('carousel-style').html(css).appendTo('head');
+    };
+  
     // Entry point
     const init = async () => {
       if (hasProductDetail()) {
         console.log('Product detail page detected. Carousel code initialized.');
         await loadProducts();  // Load products
         buildHTML();  // Build and append HTML
+        buildCSS();  // Build and append CSS
       } else {
         console.log('Not a product detail page. Carousel not initialized.');
       }
