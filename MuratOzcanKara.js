@@ -1,5 +1,19 @@
 (() => {
     const self = {};
+
+    // Execute
+    const init = async () => {
+          if (hasProductDetail()) {
+            console.log('Product detail page detected. Carousel code initialized.');
+            await loadProducts();  // Load products
+            buildHTML();  // Build and append HTML
+            buildCSS();  // Build and append CSS
+            setEvents();  // Set up event handlers
+          } else {
+            console.log('Not a product detail page. Carousel not initialized.');
+          }
+    };
+      
   
     // page should contains .product-detail element or do not start
     const hasProductDetail = () => {
@@ -30,7 +44,7 @@
           // Update products with favorite status before saving
           const updatedProducts = data.map(product => ({
             ...product,
-            isFavorite: favorites.includes(product.id)
+            isFavorite: favorites[product.id] === true
           }));
           self.products = updatedProducts;
           console.log('Fetched products from API:', self.products);
@@ -396,21 +410,6 @@
       updateButtonStates();
     };
   
-
-    // Entry point
-    const init = async () => {
-      if (hasProductDetail()) {
-        console.log('Product detail page detected. Carousel code initialized.');
-        await loadProducts();  // Load products
-        buildHTML();  // Build and append HTML
-        buildCSS();  // Build and append CSS
-        setEvents();  // Set up event handlers
-      } else {
-        console.log('Not a product detail page. Carousel not initialized.');
-      }
-    };
-  
-
     init();
 
 })();
