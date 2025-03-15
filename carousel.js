@@ -31,18 +31,55 @@
           self.products = [];
         }
       }
+      //local storage fetch favorites
+      const storedFavorites = localStorage.getItem('favoriteProducts');
+      self.favoriteProducts = storedFavorites ? JSON.parse(storedFavorites) : {};
+
     };
-    
+
     // Build HTML for the carousel
     const buildHTML = () => {
       const html = `
         <div class="carousel-container">
-          <h1>You Might Also Like</h1>
-          <p>Product carousel will appear here soon...</p>
+          <h2>You Might Also Like</h2>
+          <div class="carousel-wrapper">
+            <div class="carousel-track">
+              ${self.products.map(product => `
+                <div class="carousel-item">
+                  <a href="${product.url}" target="_blank">
+                    <img src="${product.img}" alt="${product.name}">
+                  </a>
+                  <p class="product-name">${product.name}</p>
+                  <p class="product-price">${product.price}</p>
+                  <span class="heart-icon ${self.favoriteProducts[product.id] ? 'filled' : ''}"></span>
+                </div>
+              `).join('')}
+            </div>
+            <button class="carousel-prev">‹</button>
+            <button class="carousel-next">›</button>
+          </div>
         </div>
       `;
 
       $('.product-detail').append(html);
+    };
+  
+    // Build CSS for the carousel
+    const buildCSS = () => {
+      const css = `
+        .carousel-container {
+          margin-top: 40px;
+          padding: 0 15px;
+        }
+        .carousel-container h2 {
+          font-size: 20px;
+          font-weight: 600;
+          margin-bottom: 15px;
+        }
+        /* More styles wil be added later */
+      `;
+
+      $('<style>').addClass('carousel-style').html(css).appendTo('head');
     };
   
     // Entry point
@@ -51,6 +88,7 @@
         console.log('Product detail page detected. Carousel code initialized.');
         await loadProducts();  // Load products
         buildHTML();  // Build and append HTML
+        buildCSS();  // Build and append CSS
       } else {
         console.log('Not a product detail page. Carousel not initialized.');
       }
